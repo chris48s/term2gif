@@ -4,7 +4,7 @@
 # DESCRIPTION:  Record a terminal session to animated GIF
 # LICENSE:      MIT
 # DEPENDENCIES: byzanz: `sudo apt install byzanz`
-# VERSION:      0.1.0
+# VERSION:      0.2.0
 
 set -e
 
@@ -24,29 +24,29 @@ beep() {
 }
 
 # Window geometry
-XWININFO=$(xwininfo -id $WINDOWID)
-read X < <(awk -F: '/Absolute upper-left X/{print $2}' <<< "$XWININFO")
-read Y < <(awk -F: '/Absolute upper-left Y/{print $2}' <<< "$XWININFO")
-read W < <(awk -F: '/Width/{print $2}' <<< "$XWININFO")
-read H < <(awk -F: '/Height/{print $2}' <<< "$XWININFO")
+XWININFO=$(xwininfo -id "$WINDOWID")
+read -r X < <(awk -F: '/Absolute upper-left X/{print $2}' <<< "$XWININFO")
+read -r Y < <(awk -F: '/Absolute upper-left Y/{print $2}' <<< "$XWININFO")
+read -r W < <(awk -F: '/Width/{print $2}' <<< "$XWININFO")
+read -r H < <(awk -F: '/Height/{print $2}' <<< "$XWININFO")
 
 # Capture Terminal session
-script --timing=$TIMING $TYPESCRIPT
+script --timing="$TIMING" "$TYPESCRIPT"
 
 # Replay the terminal session capture and record to GIF
 beep
 
 clear
 
-byzanz-record --verbose --delay=0 --x=$X --y=$Y --width=$W --height=$H \
+byzanz-record --verbose --delay=0 --x="$X" --y="$Y" --width="$W" --height="$H" \
 "$FOLDER/GIFrecord_$TIME.gif" \
 -e "bash -c 'scriptreplay --timing $TIMING --typescript $TYPESCRIPT && sleep 1'"
 
 beep
 
 # Clean up temp files
-rm $TIMING
-rm $TYPESCRIPT
+rm "$TIMING"
+rm "$TYPESCRIPT"
 
 # Notify the user of end of recording.
 echo "Recording saved to $FOLDER/GIFrecord_$TIME.gif"
